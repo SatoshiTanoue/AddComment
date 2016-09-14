@@ -1,0 +1,60 @@
+options {
+  STATIC=false;
+  UNICODE_INPUT =true;
+}
+
+PARSER_BEGIN(AddCommentParser)
+  package AddCommentParser;
+  import java.util.ArrayList;
+  import java.util.List;
+
+public class AddCommentParser{
+}
+
+PARSER_END(AddCommentParser)
+
+SKIP :{
+    <  SPACE:([" ","\t","\n","\r","\f"])+ >
+}
+
+TOKEN :
+{
+          <LINE_COMMENT:"//"(~["\n","\r"])* ("\n"|"\r\n" | "\r")? >
+        | < BLOCK_COMMENT: "/*" (~["*"])*("*")+ (~["/","*"](~["*"])*("*")+)* "/" >
+        | < FOR : "for" >
+        | < WHILE: "while" >
+        | < IF: "if" >
+        | < OTHERS:~[] >
+}
+
+String loopComment():
+{
+    String result="";
+}
+{
+    (<LINE_COMMENT> | <BLOCK_COMMENT> ) (<FOR>|<WHILE> )
+    {
+        return "終了条件を追加してください";
+    }
+}
+
+
+String others():
+{
+    String result="";
+    Token t;
+}
+{
+    (t= <OTHERS>
+     {
+        try {
+             result += t.image;
+        } catch (NullPointerException e) {
+             e.printStackTrace();
+        }
+     }
+    )*
+    {
+        return result;
+    }
+}
